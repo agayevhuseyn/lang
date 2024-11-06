@@ -1,0 +1,8 @@
+*.lang
+quests/
+scripts/
+syntax/
+tasks/
+old
+main
+starttime
