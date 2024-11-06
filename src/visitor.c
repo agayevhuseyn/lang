@@ -615,6 +615,7 @@ AST* visitor_visit_function(Visitor* visitor, Scope* scope, AST* f, AST* f_call)
   for (int i = 0; i < f->function_declaration.arg_size; i++) {
     VariableType var_type = f->function_declaration.arg_types[i];
     AST* var_val = visitor_visit(visitor, scope, f_call->function_call.args[i]);
+    /*
     if (!((var_val->type == AST_INT && var_type == VAR_INT)||
         (var_val->type == AST_FLOAT && var_type == VAR_FLOAT)||
         (var_val->type == AST_STRING && var_type == VAR_STRING)||
@@ -624,7 +625,11 @@ AST* visitor_visit_function(Visitor* visitor, Scope* scope, AST* f, AST* f_call)
               f->function_declaration.name, i, var_type_name(var_type), ast_name(var_val->type));
       return visitor_error(msg);
     }
+    */
     Var* var = init_var(f->function_declaration.args[i]->variable.name, var_val, var_type, true);
+
+    visitor_check_types(true, var, TOKEN_ASSIGN, var_val);
+
     scope_add_var(local_scope, var);
   }
   scope = local_scope;
