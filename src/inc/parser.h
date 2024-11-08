@@ -16,8 +16,7 @@ typedef struct {
 Parser* init_parser(Lexer* lexer);
 
 int parser_is_end(Parser* parser);
-Token* parser_peek(Parser* parser);
-Token* parser_peek_offset(Parser* parser, int offset);
+Token* parser_peek(Parser* parser); Token* parser_peek_offset(Parser* parser, int offset);
 Token* parser_advance(Parser* parser);
 Token* parser_eat(Parser* parser, TokenType type);
 AST* parser_parse(Parser* parser);
@@ -48,5 +47,7 @@ AST* parser_parse_function_declaration(Parser* parser);
 AST* parser_parse_return(Parser* parser);
 AST* parser_parse_skip(Parser* parser);
 AST* parser_parse_stop(Parser* parser);
+AST* parser_parse_include(Parser* parser);
+AST* parser_parse_module_function_call(Parser* parser);
 
 #endif

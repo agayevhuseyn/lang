@@ -1,5 +1,6 @@
 #include "inc/visitor.h"
 #include "inc/ast.h"
+#include "inc/module.h"
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -377,6 +378,8 @@ AST* visitor_visit(Visitor* visitor, Scope* scope, AST* node)
     case AST_UNARY: return visitor_visit_unary(visitor, scope, node);
     case AST_SKIP: return visitor_visit_skip(visitor, scope, node);
     case AST_STOP: return visitor_visit_stop(visitor, scope, node);
+    case AST_INCLUDE: return visitor_visit_include(visitor, scope, node);
+    case AST_MODULE_FUNCTION_CALL: return visitor_visit_module_function_call(visitor, scope, node);
   }
 }
 
@@ -911,4 +914,37 @@ AST* visitor_visit_skip(Visitor* visitor, Scope* scope, AST* node)
 AST* visitor_visit_stop(Visitor* visitor, Scope* scope, AST* node)
 {
   return node;
+}
+
+AST* visitor_visit_include(Visitor* visitor, Scope* scope, AST* node)
+{
+  for (int i = 0; i < visitor->module_size; i++) {
+    if (strcmp(visitor->modules[i]->name, node->include.module_name) == 0) {
+      char msg[96];
+      sprintf(msg, "module '%s' has already been included", node->include.module_name);
+      return visitor_error(msg);
+    }
+  }
+  visitor->module_size++;
+  visitor->modules = realloc(visitor->modules, visitor->module_size * sizeof(Module*));
+  visitor->modules[visitor->module_size - 1] = init_module(node->include.module_name);
+
+  return get_ast_noop();
+}
+
+AST* visitor_visit_module_function_call(Visitor* visitor, Scope* scope, AST* node)
+{
+  for (int i = 0; i < visitor->module_size; i++) {
+    if (strcmp(visitor->modules[i]->name, node->module_function_call.module_name) == 0) {
+      AST* f_call = node->module_function_call.func;
+      AST** args = calloc(f_call->function_call.arg_size, sizeof(AST*));
+      for (int i = 0; i < f_call->function_call.arg_size; i++) {
+        args[i] = visitor_visit(visitor, scope, f_call->function_call.args[i]);
+      }
+      return module_function_call(visitor->modules[i], f_call->function_call.name, args, f_call->function_call.arg_size);
+    }
+  }
+  char msg[128];
+  sprintf(msg, "undeclared module: '%s'", node->module_function_call.module_name);
+  return visitor_error(msg);
 }

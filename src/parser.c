@@ -76,6 +76,8 @@ AST* parser_parse_statement(Parser* parser)
       return parser_parse_for(parser, false);
     case TOKEN_FUNCTION:
       return parser_parse_function_declaration(parser);
+    case TOKEN_INCLUDE:
+      return parser_parse_include(parser);
     case TOKEN_EOF:
       return get_ast_noop();
     default: {
@@ -459,6 +461,8 @@ AST* parser_parse_variable(Parser* parser)
 {
   if (parser_peek_offset(parser, 1)->type == TOKEN_LPAREN) {
     return parser_parse_function_call(parser);
+  } else if (parser_peek_offset(parser, 1)->type == TOKEN_DOT) {
+    return parser_parse_module_function_call(parser);
   }
 
   char* name = parser_eat(parser, TOKEN_ID)->value;
@@ -761,4 +765,24 @@ AST* parser_parse_stop(Parser* parser)
 {
   parser_eat(parser, TOKEN_STOP);
   return init_ast(AST_STOP);
+}
+
+AST* parser_parse_include(Parser* parser)
+{
+  parser_eat(parser, TOKEN_INCLUDE);
+  AST* ast = init_ast(AST_INCLUDE);
+  ast->include.module_name = parser_eat(parser, TOKEN_ID)->value;
+
+  return ast;
+}
+
+AST* parser_parse_module_function_call(Parser* parser)
+{
+  AST* ast = init_ast(AST_MODULE_FUNCTION_CALL);
+
+  ast->module_function_call.module_name = parser_eat(parser, TOKEN_ID)->value;
+  parser_eat(parser, TOKEN_DOT);
+  ast->module_function_call.func = parser_parse_function_call(parser);
+
+  return ast;
 }

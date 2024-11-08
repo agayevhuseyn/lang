@@ -20,6 +20,13 @@ static void print_ast(AST* root)
       printf("%s, op: %s, value:\n\t", ast_name(root->type), token_name(root->unary.op));
       print_ast(root->unary.expr);
       break;
+    case AST_INCLUDE:
+      printf("%s, module name: %s\n", ast_name(root->type), root->include.module_name);
+      break;
+    case AST_MODULE_FUNCTION_CALL:
+      printf("%s, module name: %s\n\t", ast_name(root->type), root->module_function_call.module_name);
+      print_ast(root->module_function_call.func);
+      break;
     case AST_RETURN:
       printf("%s", ast_name(root->type));
       if (!root->return_expr.is_empty_return) {

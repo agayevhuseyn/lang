@@ -33,6 +33,8 @@ typedef enum {
   AST_RETURN_VAL,
   AST_SKIP,
   AST_STOP,
+  AST_INCLUDE,
+  AST_MODULE_FUNCTION_CALL,
 } TypeAST;
 
 typedef struct AST {
@@ -114,6 +116,11 @@ typedef struct AST {
     } function_call;
 
     struct {
+      char* module_name;
+      struct AST* func;
+    } module_function_call;
+
+    struct {
       struct AST* cond;
       struct AST* compound;
       struct AST* else_block;
@@ -143,6 +150,10 @@ typedef struct AST {
     struct {
       struct AST* val;
     } return_val;
+
+    struct {
+      char* module_name;
+    } include;
   };
 } AST;
 

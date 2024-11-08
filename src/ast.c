@@ -45,6 +45,7 @@ char* ast_name(TypeAST type)
     case AST_BINARY: return "AST_BINARY";
     case AST_TYPE_NOOP: return "AST_TYPE_NOOP";
     case AST_FUNCTION_CALL: return "AST_FUNCTION_CALL";
+    case AST_MODULE_FUNCTION_CALL: return "AST_MODULE_FUNCTION_CALL";
     case AST_FUNCTION_DECLARATION: return "AST_FUNCTION_DECLARATION";
     case AST_STRING: return "AST_STRING";
     case AST_VARIABLE_DECLARATION: return "AST_VARIABLE_DECLARATION";
@@ -61,6 +62,7 @@ char* ast_name(TypeAST type)
     case AST_UNARY: return "AST_UNARY";
     case AST_SKIP: return "AST_SKIP";
     case AST_STOP: return "AST_STOP";
+    case AST_INCLUDE: return "AST_INCLUDE";
   }
 }
 
