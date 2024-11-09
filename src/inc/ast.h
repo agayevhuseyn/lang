@@ -35,6 +35,7 @@ typedef enum {
   AST_STOP,
   AST_INCLUDE,
   AST_MODULE_FUNCTION_CALL,
+  AST_OBJECT_DECLARATION,
 } TypeAST;
 
 typedef struct AST {
@@ -133,8 +134,7 @@ typedef struct AST {
 
     struct {
       struct AST* cond;
-      struct AST* compound;
-    } while_block;
+      struct AST* compound; } while_block;
 
     struct {
       bool has_first, has_second, has_third;
@@ -154,6 +154,13 @@ typedef struct AST {
     struct {
       char* module_name;
     } include;
+
+    struct {
+      char* name;
+      VariableType* field_types;
+      char** field_names;
+      size_t field_size;
+    } object_declaration;
   };
 } AST;
 

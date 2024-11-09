@@ -75,6 +75,12 @@ void lexer_collect_token(Lexer* lexer)
     case ')':
       lexer_add_token(lexer, init_token(TOKEN_RPAREN, ")", lexer->line));
       break;
+    case '{':
+      lexer_add_token(lexer, init_token(TOKEN_LBRACE, "{", lexer->line));
+      break;
+    case '}':
+      lexer_add_token(lexer, init_token(TOKEN_RBRACE, "}", lexer->line));
+      break;
     case '\n':
       if (!lexer->encountered_word) {
         lexer->cur_indent = 0;

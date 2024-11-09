@@ -9,8 +9,13 @@ typedef struct {
   size_t token_size;
   unsigned i;
 
+  // function declaration
   AST** function_declarations;
   size_t function_size;
+
+  // object declaration
+  AST** object_declarations;
+  size_t object_size;
 } Parser;
 
 Parser* init_parser(Lexer* lexer);
@@ -50,5 +55,6 @@ AST* parser_parse_skip(Parser* parser);
 AST* parser_parse_stop(Parser* parser);
 AST* parser_parse_include(Parser* parser);
 AST* parser_parse_module_function_call(Parser* parser);
+AST* parser_parse_object_declaration(Parser* parser);
 
 #endif

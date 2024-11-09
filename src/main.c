@@ -53,6 +53,16 @@ static void print_ast(AST* root)
       }
       print_ast(root->function_declaration.compound);
       break;
+    case AST_OBJECT_DECLARATION:
+      printf("%s, name: %s, field size: %lu\n", ast_name(root->type),
+                                              root->object_declaration.name,
+                                              root->object_declaration.field_size);
+      for (int i = 0; i < root->object_declaration.field_size; i++) {
+        printf("field %d: type: %s, name: %s\n", i,
+               var_type_name(root->object_declaration.field_types[i]),
+               root->object_declaration.field_names[i]);
+      }
+      break;
     case AST_IF:
       printf("%s, size: %lu\n", ast_name(root->type), root->if_block.compound->compound.statement_size);
       printf("\tcond: %s\n", ast_name(root->if_block.cond->type)); print_ast(root->if_block.cond);
@@ -144,7 +154,7 @@ int main(int argc, char** argv)
 
   Parser* parser = init_parser(lexer);
   AST* root = parser_parse(parser);
-//  print_ast(root);
+  // print_ast(root);
 
   Visitor* visitor = init_visitor(parser);
   visitor_visit(visitor, visitor->global_scope, root);

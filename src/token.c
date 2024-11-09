@@ -67,6 +67,8 @@ char* token_name(TokenType type)
     case TOKEN_COMMA: return "TOKEN_COMMA";
     case TOKEN_INCLUDE: return "TOKEN_INCLUDE";
     case TOKEN_DOT: return "TOKEN_DOT";
+    case TOKEN_LBRACE: return "TOKEN_LBRACE";
+    case TOKEN_RBRACE: return "TOKEN_RBRACE";
 //  ----------------
     case TOKEN_AND: return "TOKEN_AND";
     case TOKEN_OR: return "TOKEN_OR";

@@ -63,6 +63,7 @@ char* ast_name(TypeAST type)
     case AST_SKIP: return "AST_SKIP";
     case AST_STOP: return "AST_STOP";
     case AST_INCLUDE: return "AST_INCLUDE";
+    case AST_OBJECT_DECLARATION: return "AST_OBJECT_DECLARATION";
   }
 }
 

@@ -66,6 +66,8 @@ AST* parser_parse_statement(Parser* parser)
     case TOKEN_STRING:
     case TOKEN_BOOL:
       return parser_parse_variable_declaration(parser);
+    case TOKEN_OBJECT:
+      return parser_parse_object_declaration(parser);
     case TOKEN_ID:
       return parser_parse_id(parser);
     case TOKEN_IF:
@@ -783,6 +785,59 @@ AST* parser_parse_module_function_call(Parser* parser)
   ast->module_function_call.module_name = parser_eat(parser, TOKEN_ID)->value;
   parser_eat(parser, TOKEN_DOT);
   ast->module_function_call.func = parser_parse_function_call(parser);
+
+  return ast;
+}
+
+AST* parser_parse_object_declaration(Parser* parser)
+{
+  AST* ast = init_ast(AST_OBJECT_DECLARATION);
+  parser_eat(parser, TOKEN_OBJECT);
+
+  ast->object_declaration.name = parser_eat(parser, TOKEN_ID)->value;
+
+  parser_eat(parser, TOKEN_NEWL);
+  parser_eat(parser, TOKEN_INDENT);
+
+  while(!parser_is_end(parser) && parser_peek(parser)->type != TOKEN_DEDENT) {
+    VariableType type;
+    switch (parser_advance(parser)->type) {
+      case TOKEN_INT:
+        type = VAR_INT;
+        break;
+      case TOKEN_FLOAT:
+        type = VAR_FLOAT;
+        break;
+      case TOKEN_STRING:
+        type = VAR_STRING;
+        break;
+      case TOKEN_BOOL:
+        type = VAR_BOOL;
+        break;
+      default: {
+        char msg[64];
+        sprintf(msg,
+                "unexpected token at parse object declaration arguments: '%s'",
+                token_name(parser_peek_offset(parser, -1)->type));
+        return parser_error(parser, msg);
+      }
+    }
+
+    ast->object_declaration.field_size++;
+    ast->object_declaration.field_names = realloc(ast->object_declaration.field_names, ast->object_declaration.field_size * sizeof(char*));
+    ast->object_declaration.field_types = realloc(ast->object_declaration.field_types, ast->object_declaration.field_size * sizeof(VariableType));
+
+    ast->object_declaration.field_types[ast->object_declaration.field_size - 1] = type;
+    ast->object_declaration.field_names[ast->object_declaration.field_size - 1] = parser_eat(parser, TOKEN_ID)->value;
+
+    parser_eat(parser, TOKEN_NEWL);
+  }
+
+  parser_eat(parser, TOKEN_DEDENT);
+
+  parser->object_size++;
+  parser->object_declarations = realloc(parser->object_declarations, parser->object_size * sizeof(AST*));
+  parser->object_declarations[parser->object_size - 1] = ast;
 
   return ast;
 }
