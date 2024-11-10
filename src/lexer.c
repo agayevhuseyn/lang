@@ -81,6 +81,18 @@ void lexer_collect_token(Lexer* lexer)
     case '}':
       lexer_add_token(lexer, init_token(TOKEN_RBRACE, "}", lexer->line));
       break;
+    case '\\':
+      while ((c = lexer_advance(lexer)) != '\n') {
+        if (c != ' ' && c != '\t') {
+          if (c == '~') {
+            lexer_skip_comment_line(lexer);
+          } else {
+            lexer_error(lexer, "nothing must come after '\\'");
+          }
+        }
+      }
+      lexer->line++;
+      break;
     case '\n':
       if (!lexer->encountered_word) {
         lexer->cur_indent = 0;

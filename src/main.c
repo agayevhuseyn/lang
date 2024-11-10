@@ -128,8 +128,11 @@ static void print_ast(AST* root)
              root->variable_declaration.size,
              var_type_name(root->variable_declaration.type));
       for (int i = 0; i < root->variable_declaration.size; i++) {
-        printf("%s varname: %s, value:\n\t", ast_name(root->type), root->variable_declaration.names[i]);
-        print_ast(root->variable_declaration.values[i]);
+        printf("%s varname: %s\n", ast_name(root->type), root->variable_declaration.names[i]);
+        if (root->variable_declaration.is_defined[i]) {
+          printf(", value:\n\t");
+          print_ast(root->variable_declaration.values[i]);
+        }
       }
       break;
     case AST_VARIABLE:
