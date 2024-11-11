@@ -773,7 +773,13 @@ AST* parser_parse_include(Parser* parser)
 {
   parser_eat(parser, TOKEN_INCLUDE);
   AST* ast = init_ast(AST_INCLUDE);
+  ast->include.is_alias = false;
   ast->include.module_name = parser_eat(parser, TOKEN_ID)->value;
+  if (parser_peek(parser)->type == TOKEN_ASSIGN) {
+    parser_eat(parser, TOKEN_ASSIGN);
+    ast->include.is_alias = true;
+    ast->include.module_alias_name = parser_eat(parser, TOKEN_ID)->value;
+  }
 
   return ast;
 }

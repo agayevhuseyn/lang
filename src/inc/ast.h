@@ -153,6 +153,8 @@ typedef struct AST {
 
     struct {
       char* module_name;
+      bool is_alias;
+      char* module_alias_name;
     } include;
 
     struct {

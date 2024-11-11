@@ -30,7 +30,9 @@ Module* init_module(char* name)
 AST* module_function_call(Module* module, char* func_name, AST** args, size_t arg_size)
 {
   for (int i = 0; i < module->function_size; i++) {
-    if (strcmp(module->function_names[i], func_name) == 0) {
+    char act_fn_name[strlen(func_name) + 2];
+    sprintf(act_fn_name, "_%s", func_name);
+    if (strcmp(module->function_names[i], act_fn_name) == 0) {
       return module->functions[i](args, arg_size);
     }
   }
@@ -39,8 +41,10 @@ AST* module_function_call(Module* module, char* func_name, AST** args, size_t ar
   module->function_names = realloc(module->function_names, module->function_size * sizeof(char*));
   module->functions = realloc(module->functions, module->function_size * sizeof(AST* (*) (AST** args, size_t arg_size)));
 
-  module->function_names[module->function_size - 1] = func_name;
-  AST* (*function) (AST**, size_t) = dlsym(module->handle, func_name);
+  char* act_fn_name = calloc(strlen(func_name) + 2, sizeof(char));
+  sprintf(act_fn_name, "_%s", func_name);
+  module->function_names[module->function_size - 1] = act_fn_name;
+  AST* (*function) (AST**, size_t) = dlsym(module->handle, act_fn_name);
   if (!function) {
     module_error();
   }
