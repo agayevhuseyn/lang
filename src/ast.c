@@ -64,6 +64,8 @@ char* ast_name(TypeAST type)
     case AST_STOP: return "AST_STOP";
     case AST_INCLUDE: return "AST_INCLUDE";
     case AST_OBJECT_DECLARATION: return "AST_OBJECT_DECLARATION";
+    case AST_MEMBER_ACCESS: return "AST_MEMBER_ACCESS";
+    case AST_MEMBER_ASSIGN: return "AST_MEMBER_ASSIGN";
   }
 }
 
@@ -74,6 +76,7 @@ char* var_type_name(VariableType type)
     case VAR_FLOAT: return "VAR_FLOAT";
     case VAR_STRING: return "VAR_STRING";
     case VAR_BOOL: return "VAR_BOOL";
+    case VAR_OBJECT: return "VAR_OBJECT";
   }
 }
 

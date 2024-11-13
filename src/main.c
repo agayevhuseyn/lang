@@ -16,6 +16,15 @@ static void print_tokens(Token** tokens, size_t size)
 static void print_ast(AST* root)
 {
   switch (root->type) {
+    case AST_MEMBER_ACCESS:
+      printf("%s, var: %s, member: %s\n", ast_name(root->type), root->member_access.object_name, root->member_access.member_name);
+      break;
+    case AST_MEMBER_ASSIGN:
+      printf("%s, object_access:\n\t", ast_name(root->type));
+      print_ast(root->member_assign.member_access);
+      printf("OPERATOR: %s, value:\n\t", token_name(root->member_assign.op));
+      print_ast(root->member_assign.assign_val);
+      break;
     case AST_UNARY:
       printf("%s, op: %s, value:\n\t", ast_name(root->type), token_name(root->unary.op));
       print_ast(root->unary.expr);
@@ -129,8 +138,11 @@ static void print_ast(AST* root)
              var_type_name(root->variable_declaration.type));
       for (int i = 0; i < root->variable_declaration.size; i++) {
         printf("%s varname: %s\n", ast_name(root->type), root->variable_declaration.names[i]);
+        if (root->variable_declaration.type == VAR_OBJECT) {
+          printf("object type: %s\n", root->variable_declaration.object_type);
+        }
         if (root->variable_declaration.is_defined[i]) {
-          printf(", value:\n\t");
+          printf("value:\n\t");
           print_ast(root->variable_declaration.values[i]);
         }
       }
@@ -157,7 +169,7 @@ int main(int argc, char** argv)
 
   Parser* parser = init_parser(lexer);
   AST* root = parser_parse(parser);
-  // print_ast(root);
+//   print_ast(root);
 
   Visitor* visitor = init_visitor(parser);
   visitor_visit(visitor, visitor->global_scope, root);

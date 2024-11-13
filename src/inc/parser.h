@@ -56,5 +56,6 @@ AST* parser_parse_stop(Parser* parser);
 AST* parser_parse_include(Parser* parser);
 AST* parser_parse_module_function_call(Parser* parser);
 AST* parser_parse_object_declaration(Parser* parser);
+AST* parser_parse_member_access(Parser* parser);
 
 #endif

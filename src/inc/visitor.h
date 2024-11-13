@@ -8,12 +8,15 @@
 
 typedef struct {
   Scope* global_scope;
-  // function definitons
+  // function declarations
   AST** function_declarations;
   size_t function_size;
   // included modules
   Module** modules;
   size_t module_size;
+  // object declarations
+  AST** object_declarations;
+  size_t object_size;
 } Visitor;
 
 Visitor* init_visitor(Parser* parser);
@@ -44,5 +47,7 @@ AST* visitor_visit_skip(Visitor* visitor, Scope* scope, AST* node);
 AST* visitor_visit_stop(Visitor* visitor, Scope* scope, AST* node);
 AST* visitor_visit_include(Visitor* visitor, Scope* scope, AST* node);
 AST* visitor_visit_module_function_call(Visitor* visitor, Scope* scope, AST* node);
+AST* visitor_visit_member_access(Visitor* visitor, Scope* scope, AST* node);
+AST* visitor_visit_member_assign(Visitor* visitor, Scope* scope, AST* node);
 
 #endif

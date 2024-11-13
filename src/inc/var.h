@@ -3,13 +3,20 @@
 
 #include "ast.h"
 
-typedef struct {
+typedef struct Var {
   char* name;
-  struct AST* val;
+  union {
+    AST* val;
+    struct {
+      AST* declaration;
+      struct Var** vars;
+      size_t size;
+    } object;
+  };
   bool is_defined;
   VariableType type;
 } Var;
 
-Var* init_var(char* name, AST* val, VariableType type, bool is_defined);
+Var* init_var(bool is_object, char* name, AST* val, VariableType type, bool is_defined);
 
 #endif

@@ -12,6 +12,14 @@ Parser* init_parser(Lexer* lexer)
   parser->token_size = lexer->token_size;
   parser->i = 0;
 
+  // function declaration
+  parser->function_declarations = (void*)0;
+  size_t function_size = 0;
+
+  // object declaration
+  parser->object_declarations = (void*)0;
+  parser->object_size = 0;
+
   return parser;
 }
 
@@ -423,6 +431,10 @@ AST* parser_parse_variable_declaration(Parser* parser)
     case TOKEN_BOOL:
       var_type = VAR_BOOL;
       break;
+    case TOKEN_ID:
+      var_type = VAR_OBJECT;
+      ast->variable_declaration.object_type = parser_peek_offset(parser, -1)->value;
+      break;
     default:
       return get_ast_noop();
   }
@@ -433,10 +445,14 @@ AST* parser_parse_variable_declaration(Parser* parser)
     char* name = parser_eat(parser, TOKEN_ID)->value;
     bool is_defined = false;
 
+    if (var_type == VAR_OBJECT) goto skip_object;
+
     if (parser_peek(parser)->type == TOKEN_ASSIGN) {
       parser_eat(parser, TOKEN_ASSIGN);
       is_defined = true;
     }
+
+    skip_object:
 
     AST* value = is_defined ? parser_parse_expr(parser) : (void*)0;
 
@@ -464,7 +480,9 @@ AST* parser_parse_variable(Parser* parser)
   if (parser_peek_offset(parser, 1)->type == TOKEN_LPAREN) {
     return parser_parse_function_call(parser);
   } else if (parser_peek_offset(parser, 1)->type == TOKEN_DOT) {
-    return parser_parse_module_function_call(parser);
+    return parser_parse_member_access(parser);
+  } else if (parser_peek_offset(parser, 1)->type == TOKEN_ID) {
+    return parser_parse_variable_declaration(parser);
   }
 
   char* name = parser_eat(parser, TOKEN_ID)->value;
@@ -844,6 +862,37 @@ AST* parser_parse_object_declaration(Parser* parser)
   parser->object_size++;
   parser->object_declarations = realloc(parser->object_declarations, parser->object_size * sizeof(AST*));
   parser->object_declarations[parser->object_size - 1] = ast;
+
+  return get_ast_noop();
+}
+
+AST* parser_parse_member_access(Parser* parser)
+{
+  if (parser_peek_offset(parser, 3)->type == TOKEN_LPAREN) {
+    return parser_parse_module_function_call(parser);
+  }
+
+  AST* ast = init_ast(AST_MEMBER_ACCESS);
+  ast->member_access.object_name = parser_eat(parser, TOKEN_ID)->value;
+  parser_eat(parser, TOKEN_DOT);
+  ast->member_access.member_name = parser_eat(parser, TOKEN_ID)->value;
+
+  switch (parser_peek(parser)->type) {
+    case TOKEN_ASSIGN:
+    case TOKEN_PLUSEQ:
+    case TOKEN_MINUSEQ:
+    case TOKEN_MULEQ:
+    case TOKEN_DIVEQ:
+    case TOKEN_MODEQ: {
+      AST* ast_assign = init_ast(AST_MEMBER_ASSIGN);
+      ast_assign->member_assign.member_access = ast;
+      ast_assign->member_assign.op = parser_advance(parser)->type;
+      ast_assign->member_assign.assign_val = parser_parse_expr(parser);
+      return ast_assign;
+    }
+    default:
+      break;
+  }
 
   return ast;
 }

@@ -9,6 +9,7 @@ typedef enum {
   VAR_FLOAT,
   VAR_STRING,
   VAR_BOOL,
+  VAR_OBJECT,
 } VariableType;
 
 typedef enum {
@@ -36,6 +37,8 @@ typedef enum {
   AST_INCLUDE,
   AST_MODULE_FUNCTION_CALL,
   AST_OBJECT_DECLARATION,
+  AST_MEMBER_ACCESS,
+  AST_MEMBER_ASSIGN,
 } TypeAST;
 
 typedef struct AST {
@@ -88,6 +91,7 @@ typedef struct AST {
       bool* is_defined;
       size_t size;
       VariableType type;
+      char* object_type;
     } variable_declaration;
 
     struct {
@@ -122,6 +126,17 @@ typedef struct AST {
     } module_function_call;
 
     struct {
+      char* object_name;
+      char* member_name;
+    } member_access;
+
+    struct {
+      struct AST* member_access;
+      struct AST* assign_val;
+      TokenType op;
+    } member_assign;
+
+    struct {
       struct AST* cond;
       struct AST* compound;
       struct AST* else_block;
@@ -134,7 +149,8 @@ typedef struct AST {
 
     struct {
       struct AST* cond;
-      struct AST* compound; } while_block;
+      struct AST* compound;
+    } while_block;
 
     struct {
       bool has_first, has_second, has_third;

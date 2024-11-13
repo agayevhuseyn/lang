@@ -13,6 +13,10 @@ Visitor* init_visitor(Parser* parser)
   visitor->global_scope->is_global = true;
   visitor->function_declarations = parser->function_declarations;
   visitor->function_size = parser->function_size;
+  visitor->modules = (void*)0;
+  visitor->module_size = 0;
+  visitor->object_declarations = parser->object_declarations;
+  visitor->object_size = parser->object_size;
 
   return visitor;
 }
@@ -380,6 +384,8 @@ AST* visitor_visit(Visitor* visitor, Scope* scope, AST* node)
     case AST_STOP: return visitor_visit_stop(visitor, scope, node);
     case AST_INCLUDE: return visitor_visit_include(visitor, scope, node);
     case AST_MODULE_FUNCTION_CALL: return visitor_visit_module_function_call(visitor, scope, node);
+    case AST_MEMBER_ACCESS: return visitor_visit_member_access(visitor, scope, node);
+    case AST_MEMBER_ASSIGN: return visitor_visit_member_assign(visitor, scope, node);
   }
 }
 
@@ -629,7 +635,7 @@ AST* visitor_visit_function(Visitor* visitor, Scope* scope, AST* f, AST* f_call)
       return visitor_error(msg);
     }
     */
-    Var* var = init_var(f->function_declaration.args[i]->variable.name, var_val, var_type, true);
+    Var* var = init_var(false, f->function_declaration.args[i]->variable.name, var_val, var_type, true);
 
     visitor_check_types(true, var, TOKEN_ASSIGN, var_val);
 
@@ -709,9 +715,34 @@ AST* visitor_visit_variable_declaration(Visitor* visitor, Scope* scope, AST* nod
       return visitor_error(msg);
     }
 
+    if (node->variable_declaration.type == VAR_OBJECT) {
+      bool is_object_type_declared = false;
+      for (int j = 0; j < visitor->object_size; j++) {
+        AST* obj_dec = visitor->object_declarations[j];
+        if (strcmp(node->variable_declaration.object_type, obj_dec->object_declaration.name) == 0) {
+          // declare variable here and return
+          Var* var = init_var(true,
+                              node->variable_declaration.names[i],
+                              obj_dec,
+                              node->variable_declaration.type,
+                              //node->variable_declaration.is_defined[i] // object are only defined in that way: Objecttype objectname
+                              true);
+          scope_add_var(scope, var);
+          is_object_type_declared = true;
+          break;
+        }
+      }
+      if (!is_object_type_declared) {
+        char msg[128];
+        sprintf(msg, "object type '%s' is not declared", node->variable_declaration.object_type);
+        return visitor_error(msg);
+      }
+      continue;
+    }
+    
     AST* var_val = node->variable_declaration.is_defined[i] ? visitor_visit(visitor, scope, node->variable_declaration.values[i]) : (void*)0;
 
-    Var* var = init_var(node->variable_declaration.names[i], var_val, node->variable_declaration.type, node->variable_declaration.is_defined[i]);
+    Var* var = init_var(false, node->variable_declaration.names[i], var_val, node->variable_declaration.type, node->variable_declaration.is_defined[i]);
 
     if (node->variable_declaration.is_defined[i]) {
       visitor_check_types(true, var, TOKEN_ASSIGN, var_val);
@@ -951,4 +982,100 @@ AST* visitor_visit_module_function_call(Visitor* visitor, Scope* scope, AST* nod
   char msg[128];
   sprintf(msg, "undeclared module: '%s'", node->module_function_call.module_name);
   return visitor_error(msg);
+}
+
+AST* visitor_visit_member_access(Visitor* visitor, Scope* scope, AST* node)
+{
+  do {
+    Var* var = scope_get_var(scope, node->member_access.object_name);
+    if (var) {
+      if (var->type != VAR_OBJECT) {
+        char msg[96];
+        sprintf(msg, "variable is not an object: '%s'",
+                      node->member_access.object_name);
+        return visitor_error(msg);
+      }
+      for (int i = 0; i < var->object.size; i++) {
+        if (strcmp(node->member_access.member_name, var->object.vars[i]->name) == 0) {
+          return var->object.vars[i]->val;
+        }
+      }
+      char msg[96];
+      sprintf(msg, "member '%s' of object variable is not defined or does not have it: '%s'",
+                    node->member_access.member_name,
+                    node->member_access.object_name);
+      return visitor_error(msg);
+    }
+    if (scope->is_global) break;
+    if (!scope->prev) {
+      scope = visitor->global_scope;
+    } else {
+      scope = scope->prev;
+    }
+  } while (scope);
+
+  char msg[128];
+  sprintf(msg, "use of undeclared object variable: '%s'", node->member_access.object_name);
+  return visitor_error(msg);
+}
+
+AST* visitor_visit_member_assign(Visitor* visitor, Scope* scope, AST* node)
+{
+  Var* var;
+  Scope* main_scope = scope;
+  do {
+    var = scope_get_var(scope, node->member_assign.member_access->member_access.object_name);
+    if (var) {
+      goto assign;
+    }
+    if (scope->is_global) break;
+    if (!scope->prev) {
+      scope = visitor->global_scope;
+    } else {
+      scope = scope->prev;
+    }
+  } while (scope);
+  char msg[64];
+  sprintf(msg, "use of undeclared object variable: '%s'", node->member_assign.member_access->member_access.object_name);
+  return visitor_error(msg);
+
+  assign:
+  
+  Var* member_var;
+  bool is_member_declaration = true;
+  for (int i = 0; i < var->object.size; i++) {
+    if (strcmp(node->member_assign.member_access->member_access.member_name, var->object.vars[i]->name) == 0) {
+      member_var = var->object.vars[i];
+      is_member_declaration = false;
+      goto final;
+    }
+  }
+  for (int i = 0; i < var->object.declaration->object_declaration.field_size; i++) {
+    if (strcmp(var->object.declaration->object_declaration.field_names[i], node->member_assign.member_access->member_access.member_name) == 0) {
+      var->object.size++;
+      var->object.vars = realloc(var->object.vars, var->object.size * sizeof(Var*));
+      member_var = init_var(false,
+                            var->object.declaration->object_declaration.field_names[i],
+                            (void*)0,
+                            var->object.declaration->object_declaration.field_types[i],
+                            false);
+      var->object.vars[var->object.size - 1] = member_var;
+      goto final;
+    }
+  }
+  {
+    char msg[128];
+    sprintf(msg, "no such field '%s' in object type: '%s'",
+                  node->member_assign.member_access->member_access.member_name,
+                  var->object.declaration->object_declaration.name);
+    return visitor_error(msg);
+  }
+
+  final:
+
+  TokenType op = node->member_assign.op;
+  AST* var_val = visitor_visit(visitor, main_scope, node->member_assign.assign_val);
+  visitor_check_types(is_member_declaration, member_var, op, var_val);
+  
+  return visitor_visit(visitor, scope, member_var->val);
 }
