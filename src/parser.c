@@ -694,6 +694,9 @@ AST* parser_parse_function_declaration(Parser* parser)
       case TOKEN_BOOL:
         type = VAR_BOOL;
         break;
+      case TOKEN_ID:
+        type = VAR_OBJECT;
+        break;
       default: {
         char msg[64];
         sprintf(msg,
@@ -707,6 +710,9 @@ AST* parser_parse_function_declaration(Parser* parser)
     arg->variable.name = parser_eat(parser, TOKEN_ID)->value;
     ast->function_declaration.args[0] = arg;
     ast->function_declaration.arg_types[0] = type;
+    if (type == VAR_OBJECT) {
+      arg->variable.object_type_name = parser_peek_offset(parser, -2)->value;
+    }
   }
 
   while (!parser_is_end(parser) && parser_peek(parser)->type != TOKEN_RPAREN) {
@@ -732,6 +738,9 @@ AST* parser_parse_function_declaration(Parser* parser)
       case TOKEN_BOOL:
         type = VAR_BOOL;
         break;
+      case TOKEN_ID:
+        type = VAR_OBJECT;
+        break;
       default: {
         char msg[64];
         sprintf(msg,
@@ -745,6 +754,9 @@ AST* parser_parse_function_declaration(Parser* parser)
     arg->variable.name = parser_eat(parser, TOKEN_ID)->value;
     ast->function_declaration.args[ast->function_declaration.arg_size - 1] = arg;
     ast->function_declaration.arg_types[ast->function_declaration.arg_size - 1] = type;
+    if (type == VAR_OBJECT) {
+      arg->variable.object_type_name = parser_peek_offset(parser, -2)->value;
+    }
   }
 
   parser_eat(parser, TOKEN_RPAREN); 

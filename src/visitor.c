@@ -623,6 +623,28 @@ AST* visitor_visit_function(Visitor* visitor, Scope* scope, AST* f, AST* f_call)
   Scope* local_scope = init_scope();
   for (int i = 0; i < f->function_declaration.arg_size; i++) {
     VariableType var_type = f->function_declaration.arg_types[i];
+    if (var_type == VAR_OBJECT) {
+      Var* var = scope_get_var(scope, f_call->function_call.args[i]->variable.name);
+      if (strcmp(f->function_declaration.args[i]->variable.object_type_name, var->object.declaration->object_declaration.name) == 0) {
+        Var* dup_var = calloc(1, sizeof(Var));
+        dup_var->name = f->function_declaration.args[i]->variable.name;
+        dup_var->val = var->val;
+        dup_var->type = var->type;
+        dup_var->is_defined = var->is_defined;
+        dup_var->object = var->object;
+
+        scope_add_var(local_scope, dup_var);
+        continue;
+      } else {
+        char msg[128];
+        sprintf(msg, "function %s: %d index arg is object type: %s, got %s",
+                f->function_declaration.name,
+                i,
+                f->function_declaration.args[i]->variable.object_type_name,
+                var->object.declaration->object_declaration.name);
+        return visitor_error(msg);
+      }
+    }
     AST* var_val = visitor_visit(visitor, scope, f_call->function_call.args[i]);
     /*
     if (!((var_val->type == AST_INT && var_type == VAR_INT)||

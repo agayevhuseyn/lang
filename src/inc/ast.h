@@ -102,6 +102,7 @@ typedef struct AST {
 
     struct {
       char* name;
+      char* object_type_name;
     } variable;
 
     struct {
