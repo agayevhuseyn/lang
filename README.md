@@ -4,12 +4,16 @@ A language written in C (currently has no name). This language is interpreted, i
 
 ## Installation
 
-Clone the repo and execute "build.sh" (Linux only).
+Clone the repo and execute "build.sh"
 
 ```bash
 git clone https://github.com/agayevhuseyn/lang.git
 cd lang
 ./build.sh
+```
+For Windows, you should add --windows flag:
+```bash
+./build.sh --windows
 ```
 
 ## Usage

@@ -34,17 +34,17 @@ Module* init_module(char* name)
   */
   module->name = name;
   char path[256];
-#ifdef _WIN32  // For Windows
-  sprintf(path, "./%s.dll", name);  // Use .dll for Windows
-  module->handle = LoadLibrary(path);  // Use LoadLibrary for Windows
+#ifdef _WIN32
+  sprintf(path, "./%s.dll", name);
+  module->handle = LoadLibrary(path);
   if (!module->handle) {
-    module_error();  // Handle error if loading fails
+    module_error();
   }
 #else
-  sprintf(path, "./%s.so", name);  // Use .so for Linux
-  module->handle = dlopen(path, RTLD_LAZY);  // Use dlopen for Linux
+  sprintf(path, "./%s.so", name);
+  module->handle = dlopen(path, RTLD_LAZY);
   if (!module->handle) {
-    module_error();  // Handle error if loading fails
+    module_error();
   }
 #endif
   module->functions = (void*)0;
@@ -72,17 +72,16 @@ AST* module_function_call(Module* module, char* func_name, AST** args, size_t ar
   sprintf(act_fn_name, "_%s", func_name);
   module->function_names[module->function_size - 1] = act_fn_name;
 
-  // Load function from the module dynamically
-#ifdef _WIN32  // For Windows
+#ifdef _WIN32
     FARPROC function = GetProcAddress(module->handle, act_fn_name);
     if (!function) {
-      module_error();  // Handle error if function not found
+      module_error();
     }
     AST* (*function_ptr)(AST**, size_t) = (AST* (*)(AST**, size_t))function;
-#else  // For Linux
+#else
     AST* (*function_ptr)(AST**, size_t) = (AST* (*)(AST**, size_t))dlsym(module->handle, act_fn_name);
     if (!function_ptr) {
-      module_error();  // Handle error if function not found
+      module_error();
     }
 #endif
 
