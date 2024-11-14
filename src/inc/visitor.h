@@ -21,7 +21,7 @@ typedef struct {
 
 Visitor* init_visitor(Parser* parser);
 
-void visitor_check_types(bool is_declared, Var* var, TokenType op, AST* var_val);
+void visitor_check_types(bool is_declared, Var* var, _TokenType op, AST* var_val);
 
 AST* visitor_visit(Visitor* visitor, Scope* scope, AST* node);
 AST* visitor_visit_compound(Visitor* visitor, Scope* scope, AST* node);

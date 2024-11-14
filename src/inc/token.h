@@ -17,15 +17,15 @@ typedef enum {
   TOKEN_INCREMENT, TOKEN_DECREMENT, // unary
 
   TOKEN_EOF
-} TokenType;
+} _TokenType;
 
 typedef struct {
-  TokenType type;
+  _TokenType type;
   char* value;
   unsigned line;
 } Token;
 
-Token* init_token(TokenType type, char* value, unsigned line);
-char* token_name(TokenType type);
+Token* init_token(_TokenType type, char* value, unsigned line);
+char* token_name(_TokenType type);
 
 #endif

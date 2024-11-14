@@ -278,7 +278,7 @@ void lexer_get_digit(Lexer* lexer)
   s[len - 1] = lexer_peek_offset(lexer, -1);
   s[len] = '\0';
 
-  TokenType type = TOKEN_INT_VAL;
+  _TokenType type = TOKEN_INT_VAL;
   char c;
   while (isdigit(c = lexer_peek(lexer)) && !lexer_is_end(lexer)) {
     len++;

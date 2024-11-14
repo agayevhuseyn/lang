@@ -24,7 +24,7 @@ int parser_is_end(Parser* parser);
 Token* parser_peek(Parser* parser);
 Token* parser_peek_offset(Parser* parser, int offset);
 Token* parser_advance(Parser* parser);
-Token* parser_eat(Parser* parser, TokenType type);
+Token* parser_eat(Parser* parser, _TokenType type);
 AST* parser_parse(Parser* parser);
 AST* parser_parse_statement(Parser* parser);
 AST* parser_parse_statements(Parser* parser);

@@ -182,7 +182,7 @@ static AST* builtin_string(Visitor* visitor, Scope* scope, AST** args, size_t ar
   }
 }
 
-void visitor_check_types(bool is_declared, Var* var, TokenType op, AST* var_val)
+void visitor_check_types(bool is_declared, Var* var, _TokenType op, AST* var_val)
 {
   if (!var->is_defined && op != TOKEN_ASSIGN) {
     char msg[96];
@@ -824,7 +824,7 @@ AST* visitor_visit_variable_assign(Visitor* visitor, Scope* scope, AST* node)
 
   assign:
 
-  TokenType op = node->variable_assign.op;
+  _TokenType op = node->variable_assign.op;
   AST* var_val = visitor_visit(visitor, main_scope, node->variable_assign.assign_val);
   visitor_check_types(false, var, op, var_val);
   
@@ -1095,7 +1095,7 @@ AST* visitor_visit_member_assign(Visitor* visitor, Scope* scope, AST* node)
 
   final:
 
-  TokenType op = node->member_assign.op;
+  _TokenType op = node->member_assign.op;
   AST* var_val = visitor_visit(visitor, main_scope, node->member_assign.assign_val);
   visitor_check_types(is_member_declaration, member_var, op, var_val);
   

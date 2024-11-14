@@ -1,5 +1,6 @@
 #include "inc/scope.h"
 #include <string.h>
+#include <stdio.h>
 
 Scope* init_scope()
 {
@@ -16,7 +17,6 @@ Scope* init_scope()
 void print_scope(Scope* scope)
 {
   for (int i = 0; i < scope->var_size; i++) {
-    #include <stdio.h>
     printf("var name: %s\n", scope->vars[i]->name);
   }
 }

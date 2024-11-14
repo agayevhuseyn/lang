@@ -52,7 +52,7 @@ Token* parser_advance(Parser* parser)
   return parser->tokens[parser->i++];
 }
 
-Token* parser_eat(Parser* parser, TokenType type)
+Token* parser_eat(Parser* parser, _TokenType type)
 {
   if (parser_peek(parser)->type == type)
     return parser_advance(parser);
@@ -197,7 +197,7 @@ AST* parser_parse_expr(Parser* parser)
 {
   AST* left = parser_parse_equality(parser);
 
-  TokenType t = parser_peek(parser)->type;
+  _TokenType t = parser_peek(parser)->type;
   while (!parser_is_end(parser) && (
         t == TOKEN_AND ||
         t == TOKEN_OR)) {
@@ -219,7 +219,7 @@ AST* parser_parse_equality(Parser* parser)
 {
   AST* left = parser_parse_comparison(parser);
 
-  TokenType t = parser_peek(parser)->type;
+  _TokenType t = parser_peek(parser)->type;
   while (!parser_is_end(parser) && (
         t == TOKEN_EQ ||
         t == TOKEN_NE)) {
@@ -241,7 +241,7 @@ AST* parser_parse_comparison(Parser* parser)
 {
   AST* left = parser_parse_term(parser);
 
-  TokenType t = parser_peek(parser)->type;
+  _TokenType t = parser_peek(parser)->type;
   while (!parser_is_end(parser) && (
         t == TOKEN_GT ||
         t == TOKEN_GE ||
@@ -265,7 +265,7 @@ AST* parser_parse_term(Parser* parser)
 {
   AST* left = parser_parse_factor(parser);
 
-  TokenType t = parser_peek(parser)->type;
+  _TokenType t = parser_peek(parser)->type;
   while (!parser_is_end(parser) && (
         t == TOKEN_PLUS ||
         t == TOKEN_MINUS)) {
@@ -287,7 +287,7 @@ AST* parser_parse_factor(Parser* parser)
 {
   AST* left = parser_parse_unary(parser);
 
-  TokenType t = parser_peek(parser)->type;
+  _TokenType t = parser_peek(parser)->type;
   while (!parser_is_end(parser) && (
         t == TOKEN_MUL ||
         t == TOKEN_DIV ||

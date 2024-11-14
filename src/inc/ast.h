@@ -75,13 +75,13 @@ typedef struct AST {
     } boolean;
 
     struct {
-      TokenType op;
+      _TokenType op;
       struct AST* left;
       struct AST* right;
     } binary;
 
     struct {
-      TokenType op;
+      _TokenType op;
       struct AST* expr;
     } unary;
 
@@ -97,7 +97,7 @@ typedef struct AST {
     struct {
       char* name;
       struct AST* assign_val;
-      TokenType op;
+      _TokenType op;
     } variable_assign;
 
     struct {
@@ -134,7 +134,7 @@ typedef struct AST {
     struct {
       struct AST* member_access;
       struct AST* assign_val;
-      TokenType op;
+      _TokenType op;
     } member_assign;
 
     struct {

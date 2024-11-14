@@ -1,6 +1,6 @@
 #include "inc/token.h"
 
-Token* init_token(TokenType type, char* value, unsigned line)
+Token* init_token(_TokenType type, char* value, unsigned line)
 {
   Token* token = calloc(1, sizeof(Token));
 
@@ -11,7 +11,7 @@ Token* init_token(TokenType type, char* value, unsigned line)
   return token;
 }
 
-char* token_name(TokenType type)
+char* token_name(_TokenType type)
 {
   switch (type) {
     case TOKEN_INT: return "TOKEN_INT";
