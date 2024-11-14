@@ -75,6 +75,7 @@ AST* module_function_call(Module* module, char* func_name, AST** args, size_t ar
 #ifdef _WIN32
     FARPROC function = GetProcAddress(module->handle, act_fn_name);
     if (!function) {
+      fprintf(stderr, "%s function is not found in module: %s\n", func_name, module->name);
       module_error();
     }
     AST* (*function_ptr)(AST**, size_t) = (AST* (*)(AST**, size_t))function;
