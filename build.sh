@@ -1,7 +1,7 @@
 #!/bin/bash
 
 CC="gcc"
-OUT="main"
+OUT="lang"
 SRC_DIR="src"
 INC_DIR="$SRC_DIR/inc"
 OBJ_DIR="obj"
@@ -17,7 +17,7 @@ while [[ $# -gt 0 ]]; do
   case "$1" in
     --windows)
       CC="x86_64-w64-mingw32-gcc"
-      OUT="main.exe"
+      OUT="lang.exe"
       shift
       ;;
     *)

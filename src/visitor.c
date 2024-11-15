@@ -86,6 +86,30 @@ static AST* builtin_read(Visitor* visitor, Scope* scope, AST** args, size_t arg_
   return ast;
 }
 
+static AST* builtin_quit(Visitor* visitor, Scope* scope, AST** args, size_t arg_size)
+{
+  if (arg_size != 1) {
+    char msg[64]; sprintf(msg, "function quit: expected 1 argument, got %lu", arg_size);
+    return visitor_error(msg);
+  }
+  for (int i = 0; i < arg_size; i++) {
+    AST* arg = visitor_visit(visitor, scope, args[i]);
+    switch (arg->type) {
+      case AST_INT:
+        exit(arg->integer.val);
+        break;
+      case AST_FLOAT:
+        exit(arg->floating.val);
+      default: {
+        char msg[64]; sprintf(msg, "unexpected arg at function quit: '%s'", ast_name(arg->type));
+        return visitor_error(msg);
+      }
+    }
+  }
+
+  return get_ast_noop();
+}
+
 static AST* builtin_int(Visitor* visitor, Scope* scope, AST** args, size_t arg_size)
 {
   if (arg_size != 1) {
@@ -709,6 +733,8 @@ AST* visitor_visit_function_call(Visitor* visitor, Scope* scope, AST* node)
     return builtin_write(visitor, scope, node->function_call.args, node->function_call.arg_size);
   } else if (strcmp(node->function_call.name, "read") == 0) {
     return builtin_read(visitor, scope, node->function_call.args, node->function_call.arg_size);
+  } else if (strcmp(node->function_call.name, "quit") == 0) {
+    return builtin_quit(visitor, scope, node->function_call.args, node->function_call.arg_size);
   } else if (strcmp(node->function_call.name, "int") == 0) {
     return builtin_int(visitor, scope, node->function_call.args, node->function_call.arg_size);
   } else if (strcmp(node->function_call.name, "float") == 0) {
